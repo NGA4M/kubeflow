@@ -1,0 +1,27 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: mlflow
+  namespace: kubeflow
+spec:
+  gateways:
+    ## the istio gateway which is serving kubeflow
+    ## TEMPLATE: <KUBEFLOW_GATEWAY_NAMESPACE>/<KUBEFLOW_GATEWAY_NAME>
+    - kubeflow-gateway
+  hosts:
+    - '*'
+  http:
+    - headers:
+        request:
+          add:
+            x-forwarded-prefix: /mlflow
+      match:
+        - uri:
+            prefix: /mlflow/
+      rewrite:
+        uri: /
+      route:
+        - destination:
+            host: mlflow-service.mlflow.svc.cluster.local
+            port:
+              number: 5000

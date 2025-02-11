@@ -1,0 +1,3 @@
+kserve
+kubernetes
+boto3

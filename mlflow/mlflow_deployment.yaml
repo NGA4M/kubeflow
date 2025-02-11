@@ -1,0 +1,51 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: mlflow
+  namespace: mlflow
+  labels:
+    app: mlflow
+spec:
+  selector:
+    matchLabels:
+      app: mlflow
+  template:
+    metadata:
+      labels:
+        app: mlflow
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: c1
+          image: matteobrina99999/mlflow:latest
+          imagePullPolicy: Always
+          command: ["sh", "-c"]
+          args:
+            - |
+              python3 schema_check.py;
+              mlflow server --backend-store-uri mysql+pymysql://$MYSQL_USERNAME:$MYSQL_PASSWORD@mysql-mlflow:3306/mlflow_db --artifacts-destination s3://mlflow --host 0.0.0.0;
+          ports:
+            - containerPort: 5000
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret-mlflow
+                  key: accesskey
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret-mlflow
+                  key: secretkey
+            - name: MYSQL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret-mlflow
+                  key: username
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret-mlflow
+                  key: password
+            - name: MLFLOW_S3_ENDPOINT_URL
+              value: http://minio-mlflow:9000

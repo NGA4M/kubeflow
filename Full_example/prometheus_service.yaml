@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: iris-service
+  labels:
+    servizio: monitoraggio  #this is an example, insert a custom label that will have to match with the one in servicemonitor
+spec:
+  selector:
+    component: predictor
+  ports:
+    - name: metrics
+      protocol: TCP
+      port: 8002
+      targetPort: 8002
+  type: ClusterIP

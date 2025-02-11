@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-mlflow
+spec:
+  selector:
+    matchLabels:
+      app: mysql-mlflow
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql-mlflow
+    spec:
+      containers:
+      - image: mysql:latest
+        name: mysql-mlflow
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret-mlflow
+              key: password
+        ports:
+        - containerPort: 3306
+          name: mysql-mlflow
+        volumeMounts:
+        - name: mysql-persistent-storage-mlflow
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage-mlflow
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim-mlflow
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-mlflow
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: mysql-mlflow

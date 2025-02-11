@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    release: #Insert prometheus release name, to find out run the following command: kubectl get prometheuses.monitoring.coreos.com --all-namespaces -o jsonpath="{.items[*].spec.serviceMonitorSelector}"
+  name: modelli
+  namespace: #Insert the prometheus namespace
+spec:
+  endpoints:
+  - interval: 30s
+    port: metrics
+    path: /metrics
+  namespaceSelector:
+    matchNames:
+    - #insert the ml models namespace
+  selector:
+    matchLabels:
+      servizio: monitoraggio  #this has to match the service label
